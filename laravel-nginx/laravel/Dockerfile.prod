@@ -1,0 +1,73 @@
+#####################################################################################################################################
+# Este Dockerfile configura um processo de construção de várias etapas. 															#
+# A primeira etapa instala as dependências necessárias, cria um projeto Laravel usando o Composer, e a segunda etapa copia o        #
+# projeto Laravel da primeira etapa, configura o servidor web e prepara o contêiner para executar o PHP-FPM.                        #
+##################################################################################################################################### 
+
+# Define a imagem base como php:7.4-cli.
+FROM php:7.4-cli AS builder
+
+# Define o diretório de trabalho como /var/www.
+WORKDIR /var/www
+
+# Atualiza os repositórios de pacotes usando apt-get update.
+RUN apt-get update 
+
+# Instala o pacote libzip-dev usando apt-get install para habilitar a extensão zip.
+RUN apt-get install libzip-dev -y 
+
+# Usa docker-php-ext-install para instalar a extensão zip para o PHP.
+RUN docker-php-ext-install zip
+
+# Baixa o instalador do Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" 
+
+# Executa o instalador 
+RUN php composer-setup.php 
+
+# Remove o arquivo de instalação
+RUN php -r "unlink('composer-setup.php');"
+
+# cria um novo projeto Laravel chamado "laravel" usando o Composer. 
+# Isso irá baixar todas as dependências necessárias para o projeto Laravel.
+RUN php composer.phar create-project laravel/laravel laravel
+
+# Define outra imagem base. 
+# Nesse caso, é a imagem do PHP 7.4 com suporte para PHP-FPM (FastCGI Process Manager) usando o Alpine Linux, que é uma distribuição Linux leve.
+FROM php:7.4-fpm-alpine
+
+# Define novamente o diretório de trabalho como /var/www, mas desta vez no novo contêiner.
+WORKDIR /var/www
+
+# Remove o diretório padrão /var/www/html existente no contêiner.
+RUN rm -rf /var/www/html
+
+#  Copia o diretório Laravel criado anteriormente na etapa do builder para o diretório atual do novo contêiner.
+COPY --from=builder /var/www/laravel .
+
+# Cria um link simbólico chamado "html" que aponta para o diretório "public" do projeto Laravel. 
+# Isso é feito para que o servidor web possa servir o conteúdo do diretório "public" como a raiz do site.
+RUN ln -s public html
+
+# Define as permissões corretas para que o servidor web PHP-FPM possa acessar os arquivos do projeto.
+RUN chown -R www-data:www-data /var/www
+
+# Expõe a porta 9000 para que outros contêineres ou serviços possam se comunicar com o PHP-FPM.
+EXPOSE 9000
+
+# Define o comando padrão a ser executado quando o contêiner for iniciado. Nesse caso, o PHP-FPM será iniciado.
+CMD ["php-fpm"]
+
+#####################################################################################################################################
+# Comandos básicos  																												#  
+#####################################################################################################################################
+
+# "docker-compose build" é usado para construir ou reconstruir os serviços definidos em um arquivo Compose (arquivo YAML) no diretório atual.	
+
+#####################################################################################################################################
+																																	
+# "docker-compose up -d" é usado para iniciar os serviços definidos em um arquivo Compose (arquivo YAML) no diretório atual e executá-los em segundo plano (modo detached").
+
+# "-d" ou "--detach": essa opção indica ao Docker Compose para executar os serviços em segundo plano, ou seja, em modo "detached". Com isso, você pode continuar usando o terminal sem que ele fique vinculado aos logs dos contêineres.
+
+#####################################################################################################################################
