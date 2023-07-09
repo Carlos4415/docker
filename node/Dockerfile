@@ -1,16 +1,17 @@
+# Dockerfile
+# Este arquivo é usado para construir uma imagem Docker baseada no Node.js 15 e executar uma aplicação Node.js.
+
+# Definir a imagem base como node:15
 FROM node:15
 
+# Definir o diretório de trabalho dentro do contêiner
 WORKDIR /usr/src/app
 
-RUN echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" > /etc/apt/sources.list
+# Copiar o código-fonte da aplicação para o diretório de trabalho
+COPY . .
 
-RUN apt-get update && apt-get install -y wget
-
-ENV DOCKERIZE_VERSION v0.7.0
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
+# Expor a porta 3000
 EXPOSE 3000
 
-#CMD ["node", "index.js"]
+# Comando a ser executado quando o contêiner for iniciado
+CMD ["node", "hello-world.js"]

@@ -1,0 +1,49 @@
+###############################################
+# Dockerfile para construir e executar uma    #
+# aplicação Laravel usando PHP-FPM            #
+###############################################
+
+# Estágio 1: Construir a aplicação Laravel
+FROM php:7.4-cli AS builder
+
+# Definir o diretório de trabalho para /var/www
+WORKDIR /var/www
+
+# Atualizar os pacotes e instalar a dependência libzip-dev
+RUN apt-get update
+RUN apt-get install libzip-dev -y
+
+# Instalar a extensão zip do PHP
+RUN docker-php-ext-install zip
+
+# Baixar e instalar o Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+RUN php composer-setup.php
+RUN php -r "unlink('composer-setup.php');"
+
+# Criar um projeto Laravel usando o Composer
+RUN php composer.phar create-project laravel/laravel laravel
+
+# Estágio 2: Construir a imagem final com PHP-FPM
+FROM php:7.4-fpm-alpine
+
+# Definir o diretório de trabalho para /var/www
+WORKDIR /var/www
+
+# Remover o diretório padrão do Nginx
+RUN rm -rf /var/www/html
+
+# Copiar o conteúdo do estágio de construção para o diretório atual
+COPY --from=builder /var/www/laravel .
+
+# Criar um link simbólico para a pasta public como html
+RUN ln -s public html
+
+# Definir as permissões do diretório /var/www para o usuário www-data
+RUN chown -R www-data:www-data /var/www
+
+# Expor a porta 9000 para o PHP-FPM
+EXPOSE 9000
+
+# Definir o comando padrão para iniciar o PHP-FPM
+CMD ["php-fpm"]

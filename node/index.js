@@ -1,38 +1,60 @@
-const express = require('express')
-const app = express()
-const port = 3000
+/**
+ * Script Node.js para um aplicativo Express
+ */
+
+// Importação dos módulos
+const express = require('express');
+const mysql = require('mysql');
+
+// Configuração do aplicativo Express
+const app = express();
+const port = 3000;
+
+// Configuração do banco de dados MySQL
 const config = {
-    host: 'db',
+    host: 'mysql',
     user: 'root',
     password: 'root',
     database: 'nodedb'
 };
-const mysql = require('mysql')
-const connection = mysql.createConnection(config)
 
-//const sql = `INSERT INTO people(name) values ('Carlos')`
-//connection.query(sql)
+// Criação da conexão com o banco de dados
+const connection = mysql.createConnection(config);
 
-//app.get('/', (req, res) => {
-//    res.send('<h1>Full Cycle</h1>')
-//})
+// Inserção de um registro no banco de dados
+const sql = `INSERT INTO people(name) values ('Carlos')`;
 
-//const sql = `SELECT name FROM people`
-
-connection.query('SELECT name FROM people', (err, results) => {
-    if (err) {
-      throw err;
+connection.query(sql, (error, results) => {
+    if (error) {
+        console.error('Erro ao inserir registros:', error);
+        return;
     }
-    const names = results.map((row) => row.name);
-    const response = `<h1>Full Cycle Rocks!</h1>\n\n<ul>${names
-      .map((name) => `<li>${name}</li>`)
-      .join('\n')}</ul>`;
-    res.send(response);
+});    
+
+// Consulta para contar a quantidade de registros na tabela people
+const countQuery = `SELECT COUNT(*) AS count FROM people`;
+
+connection.query(countQuery, (error, results) => {
+    if (error) {
+        console.error('Erro ao contar registros:', error);
+        return;
+    }
+
+    // Obtenha o resultado da consulta
+    const count = results[0].count;
+
+    // Configuração da rota principal
+    app.get('/', (req, res) => {
+        res.send(`<h1>Full Cycle (${count})</h1>`);
+    });
 });
 
-connection.end()
-
-app.listen(port, ()=> {
-    console.log('Rodando na porta ' + port)
-    //console.log(`App listening at http://localhost:${port}`);
-})
+// Inicialização do servidor Express
+const server = app.listen(port, () => {
+    console.log('Rodando na porta ' + port);
+});
+  
+// Encerramento da conexão com o banco de dados quando o servidor Express for encerrado
+server.on('close', () => {
+    connection.end();
+});
