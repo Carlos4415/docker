@@ -1,0 +1,179 @@
+###############################################
+# Arquivo docker-compose.yaml para definir    #
+# a composição dos serviços                   #
+###############################################
+
+version: '3'
+
+services:
+
+###############################################
+# Início Golang                               #
+###############################################
+#  golang:
+#    build:
+#      context: ./golang
+#    image: carlossoares/golang:latest
+#    container_name: golang
+#    ports:
+#      - 8080:8080
+###############################################
+# Final Golang                               #
+###############################################
+
+###############################################
+# Início Laravel e Nginx                      #
+###############################################
+#  # Serviço Laravel
+#  laravel:
+#    build:
+#      context: ./laravel
+#      dockerfile: Dockerfile.prod
+#    image: carlossoares/laravel:latest
+#    container_name: laravel
+#    networks:
+#      - minha_rede
+
+#
+#  # Serviço Nginx
+#  nginx:
+#    build:
+#      context: ./nginx
+#      dockerfile: Dockerfile.prod
+#    image: carlossoares/nginx:latest
+#    container_name: nginx
+#    networks:
+#      - minha_rede
+#    ports:
+#      - "8080:80" 
+#
+#networks:
+#  # Rede personalizada
+#  minha_rede:
+#    driver: bridge      
+###############################################
+# Final Laravel e Nginx                       #
+###############################################  
+
+###############################################
+# Início MySql                                #
+###############################################
+#  # Configurações do serviço "mysql"
+#  mysql:
+#    image: mysql:5.7
+#    command: --innodb-use-native-aio=0
+#    container_name: mysql
+#    restart: always
+#    tty: true
+#    volumes:
+#      - ./mysql:/var/lib/mysql
+#    environment:
+#      - MYSQL_DATABASE=nodedb
+#      - MYSQL_ROOT_PASSWORD=root
+###############################################
+# Final MySql                                 #
+############################################### 
+
+###############################################
+# Início Node e MySql                         #
+###############################################
+#  # Configurações do serviço "mysql"
+#  mysql:
+#    image: mysql:5.7
+#    command: --innodb-use-native-aio=0
+#    container_name: mysql
+#    restart: always
+#    tty: true
+#    volumes:
+#      - ./mysql:/var/lib/mysql
+#    environment:
+#      - MYSQL_DATABASE=nodedb
+#      - MYSQL_ROOT_PASSWORD=root
+#    networks:
+#      - minha_rede   
+#
+#  # Configurações do serviço "node"
+#  node:
+#    build:
+#      context: ./node
+#      dockerfile: Dockerfile.prod
+#    command: node index.js
+#    container_name: node
+#    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 20s docker-entrypoint.sh
+#    volumes:
+#      - ./node:/usr/src/app
+#    tty: true
+#    networks:
+#      - minha_rede
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - mysql   
+#
+#networks:
+#  # Rede personalizada
+#  minha_rede:
+#    driver: bridge  
+###############################################
+# Final Node e MySql                          #
+###############################################
+
+###############################################
+# Início Node, Nginx e MySql                  #
+###############################################
+  # Configurações do serviço "db"
+  mysql:
+      image: mysql:5.7
+      command: --innodb-use-native-aio=0
+      container_name: mysql      
+      restart: always
+      tty: true
+      volumes:
+        - ./mysql:/var/lib/mysql
+      environment:
+        - MYSQL_DATABASE=nodedb
+        - MYSQL_ROOT_PASSWORD=root
+      networks:
+        - minha_rede        
+
+  # Configurações do serviço "node"
+  node:
+      build:
+          context: ./node
+          dockerfile: Dockerfile.prod
+      command: node index.js          
+      container_name: node
+      entrypoint: dockerize -wait tcp://mysql:3306 -timeout 20s docker-entrypoint.sh
+      volumes:
+        - ./node:/usr/src/app
+      tty: true   
+      networks:
+        - minha_rede         
+      ports:
+        - "3000:3000"
+      depends_on:
+        - mysql
+
+  # Configurações do serviço "nginx"
+  nginx:
+      build:
+          context: ./node-nginx-mysql
+      image: carlossoares/nginx:latest
+      container_name: nginx  
+      networks:
+        - minha_rede          
+      ports:
+        - "8080:80"
+      
+networks:
+  # Rede personalizada
+  minha_rede:
+    driver: bridge  
+###############################################
+# Final Node Nginx e MySql                    #
+###############################################
+
+
+
+  
+
