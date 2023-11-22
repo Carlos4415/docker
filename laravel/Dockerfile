@@ -1,32 +1,26 @@
-###############################################
-# Dockerfile para criar uma imagem do PHP     #
-# com Laravel e iniciar o servidor de         #
-# desenvolvimento do Laravel.                 #
-###############################################
-
-# Estágio 1: Construir a imagem base do PHP
+# Usa a imagem base PHP 7.4 para linha de comando (CLI)
 FROM php:7.4-cli
 
-# Definir o diretório de trabalho para /var/www
+# Define o diretório de trabalho dentro do contêiner
 WORKDIR /var/www
 
-# Atualizar os pacotes e instalar a dependência libzip-dev
-RUN apt-get update
-RUN apt-get install libzip-dev -y
+# Atualiza a lista de pacotes e instala as dependências necessárias para a extensão zip
+RUN apt-get update \
+    && apt-get install -y libzip-dev \
+    && docker-php-ext-install zip \
+    # Limpa a cache do apt-get para reduzir o tamanho da imagem
+    && apt-get clean \
+    # Remove listas de pacotes desnecessárias
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar a extensão zip do PHP
-RUN docker-php-ext-install zip
+# Copia o executável do Composer da imagem oficial do Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Baixar e instalar o Composer
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'e21205b207c3ff031906575712edab6f13eb0b361f2085f1f1237b7126d785e826a450292b6cfd1d64d92e6563bbde02') { echo 'Instalador verificado'; } else { echo 'Instalador corrompido'; unlink('composer-setup.php'); } echo PHP_EOL;"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN mv composer.phar /usr/local/bin/composer
-
-# Criar um projeto Laravel usando o Composer
+# Cria um novo projeto Laravel utilizando o Composer
 RUN composer create-project laravel/laravel laravel
 
-# Estágio 2: Definir o comando de entrada e argumentos padrão
+# Configura o ponto de entrada do contêiner para iniciar o servidor Laravel
 ENTRYPOINT [ "php", "laravel/artisan", "serve" ]
+
+# Comando padrão quando o contêiner é iniciado
 CMD [ "--host=0.0.0.0", "--port=8000" ]

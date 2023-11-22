@@ -1,0 +1,26 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
+
+services:
+
+  # Serviço do banco de dados MySQL
+  db:
+    build:
+      context: ./db  # Diretório de contexto para o build da imagem do MySQL
+    container_name: db  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Configuração da senha do usuário root
+
+  # Adminer para gerenciamento do banco de dados
+  adminer:
+    build:
+      context: ./adminer  # Diretório de contexto para o build da imagem do Adminer
+    container_name: adminer  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    ports:
+      - 8080:8080  # Mapeamento da porta do host para a porta do contêiner do Adminer
+    depends_on:
+      - db  # Garante que o contêiner Adminer dependa do contêiner do banco de dados MySQL

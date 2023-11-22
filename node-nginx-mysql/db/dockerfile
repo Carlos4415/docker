@@ -1,0 +1,8 @@
+# Use a imagem oficial do MySQL 5.7 como base
+FROM mysql:5.7
+
+# Desativa o uso nativo do AIO (Asynchronous I/O) do InnoDB para resolver problemas específicos, se necessário
+CMD ["--innodb-use-native-aio=0"]
+
+# Copia o script SQL para o diretório de inicialização do Docker MySQL
+COPY setup.sql /docker-entrypoint-initdb.d/

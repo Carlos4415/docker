@@ -2,35 +2,6 @@
 
 O Docker é uma plataforma de código aberto que permite a criação, implantação e execução de aplicativos em contêineres. Contêineres são unidades autossuficientes que contêm tudo o que um aplicativo precisa para funcionar. O Docker facilita a portabilidade, escalabilidade e segurança dos aplicativos, além de oferecer uma interface simples e um registro de contêineres públicos.
 
-## Comandos para construir a imagem e executar os conêiners
-
-### Golang
-	
-	docker build -t carlossoares/golang:latest .
-	docker run -d --name golang -p 8080:8080 carlossoares/golang:latest
-	
-### Laravel
-
-	docker build -t carlossoares/laravel:latest .
-	docker run -d --name laravel -p 9000:8000 carlossoares/laravel:latest
-	docker run -d --name laravel --network=laranet carlossoares/laravel:latest
-	
-### MySql
-	
-    docker run -d --name mysql -v /home/carlos/docker/mysql:/var/lib/mysql mysql:5.7
-	docker exec -it mysql bash
-	mysql -uroot -p
-	
-### Nginx
-	
-	docker build -t carlossoares/nginx:latest .
-	docker run -d --name nginx -p 8080:80 --network=laranet carlossoares/nginx:latest
-	
-### Node
-
-	docker build -t carlossoares/node:latest .
-	docker run -d --name node -p 3000:3000 carlossoares/node:latest
-
 ## Principais comandos do Docker
 
 `docker run`: Executa um contêiner a partir de uma imagem.  

@@ -1,17 +1,11 @@
-###############################################
-# Dockerfile para criar uma imagem do Nginx   #
-# e servir um diretório HTML estático.        #
-###############################################
+# Usa a imagem oficial do Nginx na versão 1.25.3 como base.
+FROM nginx:1.25.3
 
-# Estágio 1: Construir a imagem base do Nginx
-#FROM nginx:1.25.0
-FROM nginx:latest
-
-# Copiar o diretório HTML para o diretório padrão do Nginx
+# Copia o conteúdo do diretório 'html' para o diretório padrão do Nginx.
 COPY html /usr/share/nginx/html
 
-# Definir o script de entrada do contêiner
+# Define o ponto de entrada do contêiner, geralmente usado para execução de scripts ou configurações adicionais.
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# Definir o comando padrão para iniciar o Nginx em primeiro plano
+# Comando padrão a ser executado quando o contêiner for iniciado.
 CMD ["nginx", "-g", "daemon off;"]

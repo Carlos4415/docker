@@ -1,11 +1,16 @@
-version: '3'
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
 
 services:
 
+  # Configurações do serviço Golang
   golang:
+    # Configuração de construção da imagem
     build:
-      context: .
-    image: carlossoares/golang:latest
-    container_name: golang
+      context: .  # O contexto de construção é o diretório atual
+    container_name: golang  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
     ports:
-      - 8080:8080
+      - 8080:8080  # Mapeamento da porta do host para a porta do contêiner

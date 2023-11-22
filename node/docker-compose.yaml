@@ -1,0 +1,15 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
+
+services:
+
+  # Configuração do serviço Node.js
+  node:
+    build:
+      context: .  # Diretório de contexto para o build da imagem do Node.js
+    container_name: node  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    ports:
+      - "3000:3000"  # Mapeamento da porta do host para a porta do contêiner do Node.js

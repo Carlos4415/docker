@@ -1,16 +1,18 @@
-// Importando o módulo Express
+// Importa o módulo express para criar uma aplicação web.
 const express = require("express");
 
-// Criando uma instância do aplicativo Express
+// Cria uma instância do aplicativo express.
 const app = express();
+
+// Define a porta na qual o servidor escutará as conexões.
 const port = 3000;
 
-// Definindo uma rota para a raiz do aplicativo
+// Define uma rota para a raiz ("/") que responde com a mensagem "Hello World!!!".
 app.get("/", (req, res) => {
   res.send("Hello World!!!");
 });
 
-// Inicialização do servidor Express
+// Inicia o servidor na porta especificada.
 app.listen(port, () => {
-  console.log('Rodando na porta ' + port);
-})
+  console.log('Servidor rodando na porta ' + port);
+});

@@ -1,0 +1,7 @@
+# Ignora o diretório node_modules ao construir a imagem Docker
+node_modules
+
+# Outros padrões de arquivos ou diretórios para ignorar:
+*.log
+*.tmp
+.DS_Store

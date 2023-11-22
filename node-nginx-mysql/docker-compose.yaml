@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+
+  # Serviço MySQL para a aplicação Node.js
+  db:
+    build:
+      context: ./db
+    container_name: db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=nodedb  # Nome do banco de dados
+      - MYSQL_ROOT_PASSWORD=root  # Senha do usuário root
+    volumes:
+      - ./db/mysql:/var/lib/mysql  # Mapeamento do volume para persistir dados
+    networks:
+      - rede_node_nginx_mysql  # Rede bridge customizada para comunicação entre serviços 
+
+  # Serviço Adminer para gerenciar o banco de dados MySQL
+  adminer:
+    build:
+      context: ./adminer
+    container_name: adminer
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - rede_node_nginx_mysql  # Conectar ao mesmo network para acessar o serviço MySQL       
+    ports:
+      - 8081:8080  # Porta 8081 exposta para acessar o Adminer pela máquina host
+
+  # Serviço da aplicação Node.js
+  node:
+    build:
+      context: ./node      
+    container_name: node
+    restart: always
+    networks:
+      - rede_node_nginx_mysql  # Conectar ao mesmo network para acessar o serviço MySQL       
+    depends_on:
+      - db
+
+  # Serviço Nginx para servir a aplicação Node.js
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    restart: always
+    networks:
+      - rede_node_nginx_mysql  # Conectar ao mesmo network para acessar o serviço Node.js        
+    ports:
+      - "8080:80"  # Porta 8080 exposta para acessar a aplicação Node.js pela máquina host
+    depends_on:
+      - node
+
+networks:
+  rede_node_nginx_mysql:
+    driver: bridge
+    # Rede bridge customizada para comunicação entre os serviços.

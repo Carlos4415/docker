@@ -1,0 +1,14 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição do serviço Nginx
+services:
+
+  # Configuração do servidor web Nginx
+  nginx:
+    build:
+      context: .  # Diretório de contexto para o build da imagem
+    container_name: nginx  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    ports:
+      - "8080:80"  # Mapeamento da porta do host para a porta do contêiner do Nginx

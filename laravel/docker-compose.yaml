@@ -1,0 +1,15 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
+
+services:
+
+  # Configurações do serviço Laravel
+  laravel:
+    build:
+      context: .  # Diretório de contexto para o build da imagem
+    container_name: laravel  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    ports:
+      - "8080:8000"  # Mapeamento da porta do host para a porta do contêiner

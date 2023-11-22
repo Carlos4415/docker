@@ -1,0 +1,53 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
+
+services:
+
+  # Configuração do serviço MySQL
+  db:
+    build:
+      context: ./db  # Diretório de contexto para o build da imagem MySQL
+    container_name: db  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    volumes:
+      - ./db/mysql:/var/lib/mysql  # Mapeamento de volume para persistir dados do MySQL
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - rede_node_mysql  # Conectar ao mesmo network bridge
+
+  # Configuração do serviço Adminer (interface web para gerenciamento do MySQL)
+  adminer:
+    build:
+      context: ./adminer  # Diretório de contexto para o build da imagem Adminer
+    container_name: adminer  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    networks:
+      - rede_node_mysql  # Conectar ao mesmo network bridge
+    ports:
+      - 8080:8080  # Mapeamento da porta do host para a porta do contêiner Adminer
+    depends_on:
+      - db  # Garante que o contêiner do MySQL esteja pronto antes de iniciar o Adminer
+
+  # Configuração do serviço Node.js
+  node:
+    build:
+      context: ./node  # Diretório de contexto para o build da imagem Node.js
+    container_name: node  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    volumes:
+      - ./node:/usr/src/app  # Mapeamento de volume para o código-fonte do Node.js
+    networks:
+      - rede_node_mysql  # Conectar ao mesmo network bridge
+    ports:
+      - "3000:3000"  # Mapeamento da porta do host para a porta do contêiner Node.js
+    depends_on:
+      - db  # Garante que o contêiner do MySQL esteja pronto antes de iniciar o Node.js
+
+# Definição de uma rede bridge compartilhada pelos serviços
+networks:
+  rede_node_mysql:
+    driver: bridge  # Driver de rede bridge

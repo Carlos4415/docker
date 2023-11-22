@@ -1,0 +1,33 @@
+# Versão da especificação do Docker Compose
+version: '3.8'
+
+# Definição dos serviços no ambiente Docker
+
+services:
+
+  # Configurações do serviço Laravel
+  laravel:
+    build:
+      context: ./laravel  # Diretório de contexto para o build da imagem do Laravel
+    container_name: laravel  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    networks:
+      - laravel_nginx_network  # Conecta o contêiner à rede personalizada
+    depends_on:
+      - nginx  # Garante que o contêiner Laravel dependa do contêiner Nginx
+
+  # Configurações do serviço Nginx
+  nginx:
+    build:
+      context: ./nginx  # Diretório de contexto para o build da imagem do Nginx
+    container_name: nginx  # Nome do contêiner
+    restart: always  # Reiniciar sempre que o contêiner sair
+    networks:
+      - laravel_nginx_network  # Conecta o contêiner à rede personalizada
+    ports:
+      - "8080:80"  # Mapeamento da porta do host para a porta do contêiner
+
+# Definição de redes personalizadas
+networks:
+  laravel_nginx_network:
+    driver: bridge  # Usa o driver de rede do tipo bridge
